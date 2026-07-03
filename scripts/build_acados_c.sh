@@ -7,37 +7,14 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 OUTPUT_DIR="${OUTPUT_DIR:-$REPO_ROOT/packages/leap_c_acados_runtime/leap_c_acados_runtime}"
 SOURCE_DIR="${SOURCE_DIR:-}"
 
-detect_platform() {
-    case "$(uname -s)" in
-        Linux)  echo "linux" ;;
-        Darwin) echo "darwin" ;;
-        *)      echo "unknown" ;;
-    esac
-}
+ARCH=$(uname -m)
+case "$ARCH" in
+    x86_64|amd64)  ARCH="amd64" ;;
+    aarch64|arm64) ARCH="aarch64" ;;
+    *)             ARCH="amd64" ;;
+esac
 
-detect_arch() {
-    local machine
-    machine=$(uname -m)
-    case "$machine" in
-        x86_64|amd64)  echo "amd64" ;;
-        aarch64|arm64) echo "aarch64" ;;
-        *) echo "amd64" ;;
-    esac
-}
-
-PLATFORM=$(detect_platform)
-ARCH=$(detect_arch)
-
-echo "=== Platform: $PLATFORM, Arch: $ARCH ==="
-
-# --- Platform-specific ---
-if [ "$PLATFORM" = "darwin" ]; then
-    SHLIB_EXT=".dylib"
-    CMAKE_EXTRA_FLAGS="-DCMAKE_OSX_ARCHITECTURES=x86_64;arm64 -DCMAKE_INSTALL_RPATH=@loader_path"
-else
-    SHLIB_EXT=".so"
-    CMAKE_EXTRA_FLAGS=""
-fi
+echo "=== Linux, Arch: $ARCH ==="
 
 # --- Step 1: Obtain acados source ---
 if [ -z "$SOURCE_DIR" ]; then
@@ -56,24 +33,17 @@ echo "=== Building acados from $SOURCE_DIR ==="
 cmake -S "$SOURCE_DIR" -B "$SOURCE_DIR/build" \
     -DCMAKE_BUILD_TYPE=Release \
     -DACADOS_WITH_OPENMP=ON \
-    -DACADOS_NUM_THREADS=1 \
-    $CMAKE_EXTRA_FLAGS
+    -DACADOS_NUM_THREADS=1
 
-cmake --build "$SOURCE_DIR/build" --target install -- -j"$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)"
+cmake --build "$SOURCE_DIR/build" --target install -- -j"$(nproc)"
 
 # --- Step 3: Copy libraries ---
 echo "=== Copying libraries ==="
 mkdir -p "$OUTPUT_DIR/lib"
 
-cp "$SOURCE_DIR/lib/libacados${SHLIB_EXT}" "$OUTPUT_DIR/lib/" 2>/dev/null || true
-cp "$SOURCE_DIR/lib/libhpipm${SHLIB_EXT}" "$OUTPUT_DIR/lib/" 2>/dev/null || true
-
-if [ "$PLATFORM" = "linux" ]; then
-    cp "$SOURCE_DIR/lib/libblasfeo.so"* "$OUTPUT_DIR/lib/" 2>/dev/null || true
-else
-    cp "$SOURCE_DIR/lib/libblasfeo${SHLIB_EXT}" "$OUTPUT_DIR/lib/" 2>/dev/null || true
-fi
-
+cp "$SOURCE_DIR/lib/libacados.so" "$OUTPUT_DIR/lib/"
+cp "$SOURCE_DIR/lib/libhpipm.so" "$OUTPUT_DIR/lib/"
+cp "$SOURCE_DIR/lib/libblasfeo.so"* "$OUTPUT_DIR/lib/"
 cp "$SOURCE_DIR/lib/link_libs.json" "$OUTPUT_DIR/lib/" 2>/dev/null || true
 cp "$SOURCE_DIR/lib/git_commit_hash" "$OUTPUT_DIR/lib/" 2>/dev/null || true
 
@@ -99,26 +69,16 @@ if [ -d "$SOURCE_DIR/include/hpipm" ]; then
     cp -r "$SOURCE_DIR/include/hpipm/"* "$OUTPUT_DIR/include/hpipm/"
 fi
 
-echo "Headers in $OUTPUT_DIR/include:"
-find "$OUTPUT_DIR/include" -type d | head -20
-
 # --- Step 5: Download Tera renderer ---
 echo "=== Downloading Tera renderer v$TERA_VERSION ==="
 mkdir -p "$OUTPUT_DIR/bin"
 
-TERA_PLATFORM=""
-case "$PLATFORM" in
-    linux)  TERA_PLATFORM="linux" ;;
-    darwin) TERA_PLATFORM="osx" ;;
-esac
-
-TERA_URL="https://github.com/acados/tera_renderer/releases/download/v${TERA_VERSION}/t_renderer-v${TERA_VERSION}-${TERA_PLATFORM}-${ARCH}"
-echo "Downloading: $TERA_URL"
+TERA_URL="https://github.com/acados/tera_renderer/releases/download/v${TERA_VERSION}/t_renderer-v${TERA_VERSION}-linux-${ARCH}"
 
 curl -fSL -o "$OUTPUT_DIR/bin/t_renderer" "$TERA_URL" || {
     echo "WARNING: Failed to download Tera renderer from $TERA_URL"
     echo "Tera renderer will need to be installed manually."
 }
-chmod +x "$OUTPUT_DIR/bin/t_renderer" 2>/dev/null || true
+chmod +x "$OUTPUT_DIR/bin/t_renderer"
 
 echo "=== Build complete ==="

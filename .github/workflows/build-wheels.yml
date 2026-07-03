@@ -9,32 +9,12 @@ on:
 
 jobs:
   build-runtime:
-    name: leap-c-acados-runtime ${{ matrix.os }} ${{ matrix.arch }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-24.04
-            arch: x86_64
-          - os: macos-latest
-            arch: universal
-            cibw_archs_macos: "x86_64 arm64"
-
-    env:
-      CIBW_ARCHS_MACOS: ${{ matrix.cibw_archs_macos || '' }}
-
+    name: leap-c-acados-runtime
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: 'recursive'
-
-      - name: Build C libraries
-        if: runner.os != 'Linux'
-        shell: bash
-        run: bash scripts/build_acados_c.sh
-        env:
-          SOURCE_DIR: ${{ github.workspace }}
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.22.0
@@ -43,11 +23,11 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: wheels-runtime-${{ matrix.os }}-${{ matrix.arch }}
+          name: wheels-runtime
           path: wheelhouse/*.whl
 
   build-acados-noarch:
-    name: leap-c-acados noarch wheel
+    name: leap-c-acados
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -62,5 +42,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: wheels-acados-noarch
+          name: wheels-acados
           path: packages/leap_c_acados/dist/*.whl

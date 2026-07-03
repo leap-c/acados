@@ -29,10 +29,3 @@ if _system == 'Linux':
     _hpipm_so = os.path.join(_lib_dir, 'libhpipm.so')
     if os.path.exists(_hpipm_so):
         CDLL(_hpipm_so, RTLD_GLOBAL)
-elif _system == 'Darwin':
-    _blasfeo_dylib = os.path.join(_lib_dir, 'libblasfeo.dylib')
-    if os.path.exists(_blasfeo_dylib):
-        CDLL(_blasfeo_dylib, RTLD_GLOBAL)
-    _hpipm_dylib = os.path.join(_lib_dir, 'libhpipm.dylib')
-    if os.path.exists(_hpipm_dylib):
-        CDLL(_hpipm_dylib, RTLD_GLOBAL)
