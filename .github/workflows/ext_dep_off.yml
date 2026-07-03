@@ -3,8 +3,7 @@ name: Test build with EXT_DEP=OFF
 on:
   push:
     branches-ignore:
-      - 'doc*'
-      - 'wip*'
+      - '**'
   pull_request:
     branches:
       - '*'

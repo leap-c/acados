@@ -3,8 +3,7 @@ name: Test Build and C tests with BLASFEO REFERENCE and OpenMP
 on:
   push:
     branches-ignore:
-      - 'doc*'
-      - 'wip*'
+      - '**'
   pull_request:
     branches:
       - '*'

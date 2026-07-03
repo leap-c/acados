@@ -3,8 +3,7 @@ name: Test MATLAB on Windows
 on:
   push:
     branches-ignore:
-      - 'doc*'
-      - 'wip*'
+      - '**'
   pull_request:
     branches:
       - '*'
