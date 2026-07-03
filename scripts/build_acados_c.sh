@@ -11,7 +11,6 @@ detect_platform() {
     case "$(uname -s)" in
         Linux)  echo "linux" ;;
         Darwin) echo "darwin" ;;
-        CYGWIN*|MINGW*|MSYS*) echo "windows" ;;
         *)      echo "unknown" ;;
     esac
 }
@@ -31,18 +30,12 @@ ARCH=$(detect_arch)
 
 echo "=== Platform: $PLATFORM, Arch: $ARCH ==="
 
-# --- Shared library helpers ---
-if [ "$PLATFORM" = "windows" ]; then
-    SHLIB_EXT=".dll"
-    SHLIB_PREFIX=""
-    CMAKE_EXTRA_FLAGS="-DBUILD_SHARED_LIBS=ON -DBLASFEO_TARGET=GENERIC"
-elif [ "$PLATFORM" = "darwin" ]; then
+# --- Platform-specific ---
+if [ "$PLATFORM" = "darwin" ]; then
     SHLIB_EXT=".dylib"
-    SHLIB_PREFIX="lib"
-    CMAKE_EXTRA_FLAGS="-DCMAKE_OSX_ARCHITECTURES=x86_64;arm64"
+    CMAKE_EXTRA_FLAGS="-DCMAKE_OSX_ARCHITECTURES=x86_64;arm64 -DCMAKE_INSTALL_RPATH=@loader_path"
 else
     SHLIB_EXT=".so"
-    SHLIB_PREFIX="lib"
     CMAKE_EXTRA_FLAGS=""
 fi
 
@@ -66,24 +59,19 @@ cmake -S "$SOURCE_DIR" -B "$SOURCE_DIR/build" \
     -DACADOS_NUM_THREADS=1 \
     $CMAKE_EXTRA_FLAGS
 
-if [ "$PLATFORM" = "windows" ]; then
-    cmake --build "$SOURCE_DIR/build" --target install --config Release
-else
-    cmake --build "$SOURCE_DIR/build" --target install -- -j"$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)"
-fi
+cmake --build "$SOURCE_DIR/build" --target install -- -j"$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)"
 
 # --- Step 3: Copy libraries ---
 echo "=== Copying libraries ==="
 mkdir -p "$OUTPUT_DIR/lib"
 
-cp "$SOURCE_DIR/lib/${SHLIB_PREFIX}acados${SHLIB_EXT}" "$OUTPUT_DIR/lib/" 2>/dev/null || true
-cp "$SOURCE_DIR/lib/${SHLIB_PREFIX}hpipm${SHLIB_EXT}" "$OUTPUT_DIR/lib/" 2>/dev/null || true
+cp "$SOURCE_DIR/lib/libacados${SHLIB_EXT}" "$OUTPUT_DIR/lib/" 2>/dev/null || true
+cp "$SOURCE_DIR/lib/libhpipm${SHLIB_EXT}" "$OUTPUT_DIR/lib/" 2>/dev/null || true
 
-# blasfeo has a versioned .so on Linux
 if [ "$PLATFORM" = "linux" ]; then
     cp "$SOURCE_DIR/lib/libblasfeo.so"* "$OUTPUT_DIR/lib/" 2>/dev/null || true
 else
-    cp "$SOURCE_DIR/lib/${SHLIB_PREFIX}blasfeo${SHLIB_EXT}" "$OUTPUT_DIR/lib/" 2>/dev/null || true
+    cp "$SOURCE_DIR/lib/libblasfeo${SHLIB_EXT}" "$OUTPUT_DIR/lib/" 2>/dev/null || true
 fi
 
 cp "$SOURCE_DIR/lib/link_libs.json" "$OUTPUT_DIR/lib/" 2>/dev/null || true
@@ -102,7 +90,6 @@ for dir in acados acados_c; do
     fi
 done
 
-# blasfeo and hpipm headers are at include/blasfeo/include and include/hpipm/include
 if [ -d "$SOURCE_DIR/include/blasfeo" ]; then
     mkdir -p "$OUTPUT_DIR/include/blasfeo"
     cp -r "$SOURCE_DIR/include/blasfeo/"* "$OUTPUT_DIR/include/blasfeo/"
@@ -121,24 +108,17 @@ mkdir -p "$OUTPUT_DIR/bin"
 
 TERA_PLATFORM=""
 case "$PLATFORM" in
-    linux)   TERA_PLATFORM="linux" ;;
-    darwin)  TERA_PLATFORM="osx" ;;
-    windows) TERA_PLATFORM="windows" ;;
+    linux)  TERA_PLATFORM="linux" ;;
+    darwin) TERA_PLATFORM="osx" ;;
 esac
 
-TERA_ARCH="$ARCH"
-TERA_EXT=""
-if [ "$PLATFORM" = "windows" ]; then
-    TERA_EXT=".exe"
-fi
-
-TERA_URL="https://github.com/acados/tera_renderer/releases/download/v${TERA_VERSION}/t_renderer-v${TERA_VERSION}-${TERA_PLATFORM}-${TERA_ARCH}${TERA_EXT}"
+TERA_URL="https://github.com/acados/tera_renderer/releases/download/v${TERA_VERSION}/t_renderer-v${TERA_VERSION}-${TERA_PLATFORM}-${ARCH}"
 echo "Downloading: $TERA_URL"
 
-curl -fSL -o "$OUTPUT_DIR/bin/t_renderer${TERA_EXT}" "$TERA_URL" || {
+curl -fSL -o "$OUTPUT_DIR/bin/t_renderer" "$TERA_URL" || {
     echo "WARNING: Failed to download Tera renderer from $TERA_URL"
     echo "Tera renderer will need to be installed manually."
 }
-chmod +x "$OUTPUT_DIR/bin/t_renderer${TERA_EXT}" 2>/dev/null || true
+chmod +x "$OUTPUT_DIR/bin/t_renderer" 2>/dev/null || true
 
 echo "=== Build complete ==="

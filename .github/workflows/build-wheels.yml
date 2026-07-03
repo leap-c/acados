@@ -17,12 +17,9 @@ jobs:
         include:
           - os: ubuntu-24.04
             arch: x86_64
-            cibw_image: manylinux_2_28
           - os: macos-latest
             arch: universal
             cibw_archs_macos: "x86_64 arm64"
-          - os: windows-2022
-            arch: AMD64
 
     env:
       CIBW_ARCHS_MACOS: ${{ matrix.cibw_archs_macos || '' }}

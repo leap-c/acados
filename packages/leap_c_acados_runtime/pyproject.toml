@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "leap-c-acados-runtime"
 version = "0.5.1"
-requires-python = ">=3.8"
+requires-python = ">=3.11"
 description = "Pre-compiled C shared libraries and headers for acados"
 
 [tool.setuptools.packages.find]
@@ -15,15 +15,13 @@ include = ["leap_c_acados_runtime*"]
 leap_c_acados_runtime = ["lib/**/*", "include/**/*", "bin/**/*"]
 
 [tool.cibuildwheel]
-build = "cp38-* cp39-* cp310-* cp311-* cp312-* cp313-*"
+build = "cp311-* cp312-* cp313-*"
 skip = "pp* *-musllinux*"
+manylinux-x86_64-image = "manylinux_2_28"
 test-command = "python -c 'import leap_c_acados_runtime; print(\"leap_c_acados_runtime ok\")'"
 
 [tool.cibuildwheel.linux]
 before-build = "bash scripts/build_acados_c.sh"
 
 [tool.cibuildwheel.macos]
-before-build = "bash scripts/build_acados_c.sh"
-
-[tool.cibuildwheel.windows]
 before-build = "bash scripts/build_acados_c.sh"
