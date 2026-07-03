@@ -4,9 +4,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 SRC="$REPO_ROOT/interfaces/acados_template/acados_template"
-DST="$REPO_ROOT/packages/acados/acados"
+DST="$REPO_ROOT/packages/leap_c_acados/acados_template"
 
-echo "=== Setting up acados package symlink ==="
+echo "=== Setting up acados_template package symlink ==="
 
 if [ -L "$DST" ] && [ -d "$DST" ]; then
     echo "Symlink already exists: $DST -> $(readlink "$DST")"

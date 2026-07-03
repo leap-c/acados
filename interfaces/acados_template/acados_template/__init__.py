@@ -29,7 +29,7 @@
 #
 
 try:
-    import acados_runtime
+    import leap_c_acados_runtime
 except ImportError:
     pass
 

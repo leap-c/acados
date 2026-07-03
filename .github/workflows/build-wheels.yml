@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-runtime:
-    name: acados-runtime ${{ matrix.os }} ${{ matrix.arch }}
+    name: leap-c-acados-runtime ${{ matrix.os }} ${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -41,7 +41,7 @@ jobs:
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.22.0
         with:
-          package-dir: packages/acados_runtime
+          package-dir: packages/leap_c_acados_runtime
 
       - uses: actions/upload-artifact@v4
         with:
@@ -49,7 +49,7 @@ jobs:
           path: wheelhouse/*.whl
 
   build-acados-noarch:
-    name: acados noarch wheel
+    name: leap-c-acados noarch wheel
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -60,9 +60,9 @@ jobs:
       - name: Build wheel
         run: |
           pip install build
-          python -m build --wheel packages/acados
+          python -m build --wheel packages/leap_c_acados
 
       - uses: actions/upload-artifact@v4
         with:
           name: wheels-acados-noarch
-          path: packages/acados/dist/*.whl
+          path: packages/leap_c_acados/dist/*.whl

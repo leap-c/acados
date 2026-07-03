@@ -4,7 +4,7 @@ set -euo pipefail
 TERA_VERSION="0.2.0"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-OUTPUT_DIR="${OUTPUT_DIR:-$REPO_ROOT/packages/acados_runtime/acados_runtime}"
+OUTPUT_DIR="${OUTPUT_DIR:-$REPO_ROOT/packages/leap_c_acados_runtime/leap_c_acados_runtime}"
 SOURCE_DIR="${SOURCE_DIR:-}"
 
 detect_platform() {
