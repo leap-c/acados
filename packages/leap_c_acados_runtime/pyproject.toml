@@ -22,6 +22,6 @@ test-command = "python -c 'import leap_c_acados_runtime; print(\"leap_c_acados_r
 [tool.cibuildwheel.linux]
 before-build = "bash scripts/build_acados_c.sh"
 repair-wheel-command = [
-    "auditwheel show {wheel} -v",
+    "auditwheel show {wheel}",
     "auditwheel repair -w {dest_dir} {wheel}",
 ]
