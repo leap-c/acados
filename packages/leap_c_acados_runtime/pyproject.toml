@@ -18,7 +18,10 @@ leap_c_acados_runtime = ["lib/**/*", "include/**/*", "bin/**/*"]
 build = "cp311-* cp312-* cp313-*"
 skip = "pp* *-musllinux*"
 test-command = "python -c 'import leap_c_acados_runtime; print(\"leap_c_acados_runtime ok\")'"
-manylinux-x86_64-image = "manylinux_2_28"
 
 [tool.cibuildwheel.linux]
 before-build = "bash scripts/build_acados_c.sh"
+repair-wheel-command = [
+    "auditwheel show {wheel} -v",
+    "auditwheel repair -w {dest_dir} {wheel}",
+]

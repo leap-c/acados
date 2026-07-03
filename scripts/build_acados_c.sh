@@ -48,6 +48,8 @@ echo "--- libgomp (if linked by libacados.so) ---"
 ldd "$SOURCE_DIR/lib/libacados.so" 2>/dev/null | awk '/libgomp/ {print $3}' | while read -r gomp; do
     echo "  $gomp"
     objdump -T "$gomp" 2>/dev/null | grep -E 'GLIBC_|GLIBCXX_|CXXABI_' | sort -u
+    echo "  VERNEED:"
+    readelf -V "$gomp" 2>/dev/null
 done
 
 echo "=== Version requirements (VERNEED) ==="
