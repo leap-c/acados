@@ -41,7 +41,13 @@ cmake --build "$SOURCE_DIR/build" --target install -- -j"$(nproc)"
 echo "=== Symbol versions in built .so files ==="
 for lib in "$SOURCE_DIR/lib/libacados.so" "$SOURCE_DIR/lib/libhpipm.so" "$SOURCE_DIR/lib/libblasfeo.so"; do
     echo "--- $(basename "$lib") ---"
-    objdump -T "$lib" 2>/dev/null | grep -E 'GLIBC_|GLIBCXX_|CXXABI_' | awk '{print $NF}' | sort -Vu || echo "  (no versioned symbols)"
+    objdump -T "$lib" 2>/dev/null | grep -E 'GLIBC_|GLIBCXX_|CXXABI_' | sort -u || echo "  (none)"
+done
+
+echo "--- libgomp (if linked by libacados.so) ---"
+ldd "$SOURCE_DIR/lib/libacados.so" 2>/dev/null | awk '/libgomp/ {print $3}' | while read -r gomp; do
+    echo "  $gomp"
+    objdump -T "$gomp" 2>/dev/null | grep -E 'GLIBC_|GLIBCXX_|CXXABI_' | sort -u
 done
 
 # --- Step 3: Copy libraries ---
