@@ -35,13 +35,14 @@ echo "=== Platform: $PLATFORM, Arch: $ARCH ==="
 if [ "$PLATFORM" = "windows" ]; then
     SHLIB_EXT=".dll"
     SHLIB_PREFIX=""
-    CMAKE_EXTRA_FLAGS="-DBUILD_SHARED_LIBS=ON"
+    CMAKE_EXTRA_FLAGS="-DBUILD_SHARED_LIBS=ON -DBLASFEO_TARGET=GENERIC"
+elif [ "$PLATFORM" = "darwin" ]; then
+    SHLIB_EXT=".dylib"
+    SHLIB_PREFIX="lib"
+    CMAKE_EXTRA_FLAGS="-DCMAKE_OSX_ARCHITECTURES=\"x86_64;arm64\""
 else
     SHLIB_EXT=".so"
     SHLIB_PREFIX="lib"
-    if [ "$PLATFORM" = "darwin" ]; then
-        SHLIB_EXT=".dylib"
-    fi
     CMAKE_EXTRA_FLAGS=""
 fi
 
