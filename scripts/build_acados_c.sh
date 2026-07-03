@@ -39,7 +39,7 @@ if [ "$PLATFORM" = "windows" ]; then
 elif [ "$PLATFORM" = "darwin" ]; then
     SHLIB_EXT=".dylib"
     SHLIB_PREFIX="lib"
-    CMAKE_EXTRA_FLAGS="-DCMAKE_OSX_ARCHITECTURES=\"x86_64;arm64\""
+    CMAKE_EXTRA_FLAGS="-DCMAKE_OSX_ARCHITECTURES=x86_64;arm64"
 else
     SHLIB_EXT=".so"
     SHLIB_PREFIX="lib"
@@ -66,7 +66,11 @@ cmake -S "$SOURCE_DIR" -B "$SOURCE_DIR/build" \
     -DACADOS_NUM_THREADS=1 \
     $CMAKE_EXTRA_FLAGS
 
-cmake --build "$SOURCE_DIR/build" --target install -- -j"$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)"
+if [ "$PLATFORM" = "windows" ]; then
+    cmake --build "$SOURCE_DIR/build" --target install --config Release
+else
+    cmake --build "$SOURCE_DIR/build" --target install -- -j"$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)"
+fi
 
 # --- Step 3: Copy libraries ---
 echo "=== Copying libraries ==="
