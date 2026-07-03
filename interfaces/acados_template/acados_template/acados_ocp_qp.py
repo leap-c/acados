@@ -1,7 +1,7 @@
 import json
 import numpy as np
 
-from acados_template.acados_ocp_iterate import AcadosOcpIterate
+from .acados_ocp_iterate import AcadosOcpIterate
 from .utils import cast_to_2d_nparray, check_if_nparray_and_flatten, is_empty
 
 class AcadosOcpQpDims:

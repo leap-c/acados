@@ -29,7 +29,8 @@
 #
 
 
-from acados_template import AcadosModel, AcadosOcpDims, AcadosSimDims
+from .acados_model import AcadosModel
+from .acados_dims import AcadosOcpDims, AcadosSimDims
 import numpy as np
 import casadi as ca
 from typing import Tuple, Union, List

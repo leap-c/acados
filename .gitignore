@@ -116,7 +116,7 @@ cmakelint
 *.srctrldb
 *.srctrlprj
 .vs
-build*
+build*/
 *rti1401
 *.asv
 *.swo
@@ -136,3 +136,8 @@ qp_out*.txt
 figures
 examples/**/*.pdf
 examples/**/*.png
+
+# pip packaging
+packages/*/dist/
+packages/*/build/
+packages/*/*.egg-info/

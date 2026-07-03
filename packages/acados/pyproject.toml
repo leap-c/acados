@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "acados"
+version = "0.5.1"
+requires-python = ">=3.8"
+description = "Fast and embedded solvers for nonlinear optimal control"
+dependencies = [
+    "acados-runtime==0.5.1",
+    "casadi",
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "cython",
+    "Deprecated",
+]
+
+[tool.setuptools.packages.find]
+include = ["acados*", "acados_template*"]
+
+[tool.setuptools.package-data]
+acados = [
+    "c_templates_tera/*",
+    "c_templates_tera/**/*",
+    "custom_update_templates/*",
+    "ros2/**/*",
+    "ros2_templates/**/*",
+    "*.json",
+    "*.pxd",
+    "*.pyx",
+]

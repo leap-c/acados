@@ -92,8 +92,7 @@ def get_acados_path():
 def get_python_interface_path():
     ACADOS_PYTHON_INTERFACE_PATH = os.environ.get('ACADOS_PYTHON_INTERFACE_PATH')
     if not ACADOS_PYTHON_INTERFACE_PATH:
-        acados_path = get_acados_path()
-        ACADOS_PYTHON_INTERFACE_PATH = os.path.join(acados_path, 'interfaces', 'acados_template', 'acados_template')
+        ACADOS_PYTHON_INTERFACE_PATH = os.path.dirname(os.path.abspath(__file__))
     return ACADOS_PYTHON_INTERFACE_PATH
 
 
@@ -245,6 +244,8 @@ def get_shared_lib_ext():
         return '.so'
 
 def get_shared_lib_dir():
+    if 'ACADOS_LIB_DIR' in os.environ:
+        return os.environ['ACADOS_LIB_DIR']
     if os.name == 'nt':
         return 'bin'
     else:

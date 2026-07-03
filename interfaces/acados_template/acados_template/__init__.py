@@ -28,6 +28,11 @@
 # POSSIBILITY OF SUCH DAMAGE.;
 #
 
+try:
+    import acados_runtime
+except ImportError:
+    pass
+
 from .acados_model import AcadosModel
 from .acados_dims import AcadosOcpDims, AcadosSimDims
 
