@@ -50,6 +50,12 @@ ldd "$SOURCE_DIR/lib/libacados.so" 2>/dev/null | awk '/libgomp/ {print $3}' | wh
     objdump -T "$gomp" 2>/dev/null | grep -E 'GLIBC_|GLIBCXX_|CXXABI_' | sort -u
 done
 
+echo "=== Version requirements (VERNEED) ==="
+for lib in "$SOURCE_DIR/lib/libacados.so" "$SOURCE_DIR/lib/libhpipm.so" "$SOURCE_DIR/lib/libblasfeo.so"; do
+    echo "--- $(basename "$lib") ---"
+    readelf -V "$lib" 2>/dev/null || echo "  (no version info)"
+done
+
 # --- Step 3: Copy libraries ---
 echo "=== Copying libraries ==="
 mkdir -p "$OUTPUT_DIR/lib"
